@@ -372,10 +372,24 @@ invalid JSON, the service silently falls back to the rule-based scorer
 capped at 100) and stores that result with `source: RULE_BASED` instead of
 `LLM` — the tenant never sees an error, just a score.
 
+
+
 ## Screenshots
 
-_Add screenshots here once you've run the app locally — e.g. Browse page,
-listing details with compatibility score, owner dashboard, chat._
+**Homepage**
+![Homepage](screenshots/homepage.png)
+
+**Login**
+![Login](screenshots/login.png)
+
+**Sign up**
+![Sign up](screenshots/signup.png)
+
+**Admin dashboard**
+![Admin dashboard](screenshots/admin-dashboard.png)
+
+**Admin — user management**
+![Admin users](screenshots/admin-users.png)
 
 ## Future improvements
 
