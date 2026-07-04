@@ -38,6 +38,16 @@ rate-limited, or returns malformed output. Search results are sorted by that
 score. When a tenant expresses interest and the owner accepts, a private
 real-time chat room opens between them, backed by Socket.io with full
 message persistence.
+Email:    admin@rentflatmate.app
+Password: ChangeMe123!
+
+
+
+### Admin access for evaluators
+
+Running `npm run seed` (see [Prisma migrations](#prisma-migrations) below)
+creates an admin account automatically:
+
 
 ## Architecture
 
