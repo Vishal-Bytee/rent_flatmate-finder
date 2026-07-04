@@ -120,3 +120,29 @@ construction. File uploads are limited by size and MIME type before ever
 reaching Cloudinary. The one gap worth naming: JWTs are long-lived with no
 refresh/rotation mechanism, which is acceptable for this scope but would
 need addressing before handling more sensitive data at production scale.
+
+## Deployment architecture
+
+The system runs across three managed platforms, chosen for zero-cost tiers
+suitable for this scope:
+
+- **Frontend** (Vercel): the `frontend/` directory is built with Vite and
+  served as a static SPA. `VITE_API_URL` and `VITE_SOCKET_URL` are baked in
+  at build time, so any change to the backend origin requires a redeploy,
+  not just an environment variable update.
+- **Backend** (Render): the `backend/` directory runs as a Node web
+  service. Render injects environment variables directly into the process
+  at runtime (no `.env` file exists on the container), and assigns its own
+  `PORT` value which the app reads via `process.env.PORT`. The free tier
+  spins the instance down after inactivity, so the first request after a
+  period of idle time can take 30-50 seconds while it cold-starts.
+- **Database** (Neon): a serverless Postgres instance, shared between
+  local development and production during this project's build phase.
+  `npx prisma migrate deploy` applies migrations without prompting,
+  suitable for CI/CD, as opposed to `migrate dev` which is interactive and
+  local-only.
+
+Live URLs:
+- Frontend: https://rent-flatmate-finder-ten.vercel.app
+- Backend: https://rent-flatmate-finder-29i9.onrender.com
+- Health check: https://rent-flatmate-finder-29i9.onrender.com/health
