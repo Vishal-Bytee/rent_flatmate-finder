@@ -1,0 +1,210 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  TENANT
+  OWNER
+  ADMIN
+}
+
+enum RoomType {
+  SINGLE
+  SHARED
+  STUDIO
+  ONE_BHK
+  TWO_BHK
+  THREE_BHK_PLUS
+}
+
+enum FurnishingStatus {
+  UNFURNISHED
+  SEMI_FURNISHED
+  FULLY_FURNISHED
+}
+
+enum InterestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum ScoreSource {
+  LLM
+  RULE_BASED
+}
+
+enum NotificationType {
+  INTEREST_RECEIVED
+  INTEREST_ACCEPTED
+  INTEREST_DECLINED
+  NEW_MESSAGE
+  SYSTEM
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenantProfile TenantProfile?
+  ownerProfile  OwnerProfile?
+
+  notifications Notification[]
+  messages      Message[]
+
+  @@index([role])
+}
+
+model TenantProfile {
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  preferredLocation String
+  minimumBudget     Int
+  maximumBudget     Int
+  moveInDate        DateTime
+  gender            String?
+  occupation        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  interestRequests  InterestRequest[]
+  compatibilityScores CompatibilityScore[]
+  ratings           Rating[]
+}
+
+model OwnerProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listings Listing[]
+}
+
+model Listing {
+  id                String            @id @default(uuid())
+  ownerId           String
+  owner             OwnerProfile      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title             String
+  description       String
+  location          String
+  rent              Int
+  availableFrom     DateTime
+  roomType          RoomType
+  furnishingStatus  FurnishingStatus
+  isFilled          Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  images              ListingImage[]
+  compatibilityScores CompatibilityScore[]
+  interestRequests    InterestRequest[]
+  ratings             Rating[]
+
+  @@index([location])
+  @@index([isFilled])
+}
+
+model ListingImage {
+  id        String   @id @default(uuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  publicId  String?
+  createdAt DateTime @default(now())
+}
+
+model Rating {
+  id        String        @id @default(uuid())
+  listingId String
+  listing   Listing       @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  tenantId  String
+  tenant    TenantProfile @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  stars     Int
+  comment   String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([listingId, tenantId])
+  @@index([listingId])
+}
+
+model CompatibilityScore {
+  id            String       @id @default(uuid())
+  tenantId      String
+  tenant        TenantProfile @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  listingId     String
+  listing       Listing      @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  score         Int
+  explanation   String
+  source        ScoreSource
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@unique([tenantId, listingId])
+  @@index([listingId])
+}
+
+model InterestRequest {
+  id         String          @id @default(uuid())
+  tenantId   String
+  tenant     TenantProfile   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  listingId  String
+  listing    Listing         @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  status     InterestStatus  @default(PENDING)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  chatRoom ChatRoom?
+
+  @@unique([tenantId, listingId])
+  @@index([status])
+}
+
+model ChatRoom {
+  id                String          @id @default(uuid())
+  interestRequestId String         @unique
+  interestRequest   InterestRequest @relation(fields: [interestRequestId], references: [id], onDelete: Cascade)
+  createdAt         DateTime        @default(now())
+
+  messages Message[]
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  chatRoomId String
+  chatRoom   ChatRoom @relation(fields: [chatRoomId], references: [id], onDelete: Cascade)
+  senderId   String
+  sender     User     @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content    String
+  createdAt  DateTime @default(now())
+
+  @@index([chatRoomId, createdAt])
+}
+
+model Notification {
+  id        String            @id @default(uuid())
+  userId    String
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String
+  isRead    Boolean           @default(false)
+  createdAt DateTime          @default(now())
+
+  @@index([userId, isRead])
+}

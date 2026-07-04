@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+::selection {
+  background-color: #2e8b84;
+  color: #f6efe3;
+}
+
+.focus-ring {
+  @apply outline-none ring-2 ring-teal ring-offset-2 ring-offset-sand dark:ring-offset-ink;
+}
+
+.skeleton {
+  @apply animate-pulse bg-ink/10 dark:bg-sand/10 rounded-md;
+}
