@@ -9,6 +9,7 @@ email notifications.
 ## Table of contents
 
 - [Project overview](#project-overview)
+- [Live demo](#live-demo)
 - [Architecture](#architecture)
 - [Tech stack](#tech-stack)
 - [Features](#features)
@@ -38,15 +39,20 @@ rate-limited, or returns malformed output. Search results are sorted by that
 score. When a tenant expresses interest and the owner accepts, a private
 real-time chat room opens between them, backed by Socket.io with full
 message persistence.
+
+## Live demo
+
+**App:** https://rent-flatmate-finder-ten.vercel.app
+**Backend health check:** https://rent-flatmate-finder-29i9.onrender.com/health
+
+**Admin login:**
 Email:    admin@rentflatmate.app
 Password: ChangeMe123!
+>Note: backend is on Render's free tier, so the first request after a
+> period of inactivity may take 30–50 seconds to respond while the
+> instance spins back up.
+---
 
-
-
-### Admin access for evaluators
-
-Running `npm run seed` (see [Prisma migrations](#prisma-migrations) below)
-creates an admin account automatically:
 
 
 ## Architecture
@@ -249,6 +255,12 @@ command `npm start`. Set all backend env vars from the table above, plus
 **Database → Neon:** create a project, copy the pooled connection string
 into `DATABASE_URL` on the backend host, then run
 `npx prisma migrate deploy` once against production.
+
+### Live URLs (this deployment)
+
+- Frontend (Vercel): https://rent-flatmate-finder-ten.vercel.app
+- Backend (Render): https://rent-flatmate-finder-29i9.onrender.com
+- Health check: https://rent-flatmate-finder-29i9.onrender.com/health
 
 ## API documentation
 
