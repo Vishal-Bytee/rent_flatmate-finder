@@ -10,7 +10,7 @@ export default function Landing() {
             Find a room that actually fits your life.
           </h1>
           <p className="mt-5 text-lg text-ink/70 dark:text-sand/70">
-            Set your budget, your move-in date, your neighborhood — we score every listing against
+            Set your budget, your move in date, your neighborhood we score every listing against
             your profile so you skip the ones that were never going to work.
           </p>
           <div className="mt-8 flex gap-3">
